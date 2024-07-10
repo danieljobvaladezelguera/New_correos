@@ -1,11 +1,11 @@
-from tkinter import Tk, Label, Button, Entry, filedialog, messagebox, PhotoImage #Librería para la creación visual del programa
+from tkinter import Tk, Label, Button, Entry, filedialog, messagebox, scrolledtext, PhotoImage #Librería para la creación visual del programa
 from openpyxl import load_workbook #Importamos libreria para el uso de excel
 from smtplib import SMTP #Libreria dentro de python para el envio de correos
 import webbrowser as web #Librería para poner una url en el programa
 from socket import gaierror #Librería con el fin de poner 
 from pathlib import Path
 from os import makedirs
-from os import path
+#from os import path
 
 
 #https://myaccount.google.com/lesssecureapps?pli=1&rapt=AEjHL4PDAcXeJzQCiyuIDVjmt4tfaMySFl40ei6dVTFTvz67ZJJl5s9nZV18NkNjNRd9jJ06jljezI9sUpZK8na8IUGjK6omA2_tjCXlK0doz2pBF2O7S3s
@@ -85,7 +85,7 @@ def preparar():
                         pdf.append(rango[k][j].value)
                     break
                 while (j == 4):
-                    if(rango[k][j].value != 'curso' and
+                    if(rango[k][j].value != 'extra' and
                         rango[k][j].value != None):
                         curso.append(str(rango[k][j].value))
                     break
@@ -113,7 +113,7 @@ def preparar():
     else:                
         agarrar1 = c_n_asunto.get() #Asunto
         agarrar2 = c_n_saludo.get() #Saludo
-        agarrar3 = c_ccorreo.get() #Cuerpo del correo
+        agarrar3 = c_ccorreo.get("1.0", "end-1c") #Cuerpo del correo
         agarrar4 = c_despedida.get() #Despedida
         texto_f1["text"] = agarrar1
         texto_f2["text"] = agarrar2
@@ -176,16 +176,17 @@ def preparar():
 #Inicio del programa raíz
 
 #Crea una carpeta
-#Crea una carpeta
 Ruta = Path(pasw)
 makedirs(Ruta, exist_ok=True)
 
 #Crea un archivo
+
 uspwd_file = Path(arch)
 if not uspwd_file.exists():
     with open(arch, "w") as file:
         file.write("")
-        
+
+#Usuario y Contraseña       
 uspwd = open(arch, "r")
 uspwdread = uspwd.readlines()
 cantidad = len(uspwdread)
@@ -228,12 +229,11 @@ if(cantidad == 0):
     print(cantidad)
 else:
     uspwd.close()
-
 uspwd.close()
 
 #Inicio del programa de envío de correos
 ventana = Tk()
-ventana.geometry("400x250")
+ventana.geometry("400x300")
 ventana.configure(background='gray')
 ventana.title("Envío de Correos Masivos")
 #ventana.iconphoto(True, PhotoImage(file="C:/Users/hp/Desktop/Carta.png"))
@@ -242,13 +242,14 @@ ventana.title("Envío de Correos Masivos")
 c_n_asunto =  Entry(ventana, text = "")
 c_n_saludo =  Entry(ventana, text = "")
 c_ccorreo =  Entry(ventana, text = "")
+c_ccorreo= scrolledtext.ScrolledText(ventana,width=30,height=10)
 c_despedida =  Entry(ventana, text = "")
 
 #Lugar donde se darán las instrucciones
-text1 =  Label(ventana, text = "Favor de introducir\n el asunto ->")
-text2 =  Label(ventana, text = "Favor de introducir\n el saludo ->")
-text3 =  Label(ventana, text = "Favor de introducir\n el cuerpo ->\n del correo")
-text4 =  Label(ventana, text = "Favor de introducir\n la despedida ->")
+text1 =  Label(ventana, text = "Zona del asunto ->")
+text2 =  Label(ventana, text = "Zona del saludo ->")
+text3 =  Label(ventana, text = "Zona del cuerpo ->\n del correo")
+text4 =  Label(ventana, text = "Zona de la despedida ->")
 text5 =  Label(ventana, text = "Programa hecho por Daniel Job Valadez Elguera", bg = "gray")
 
 #Lugar donde se imprimen los resultados
