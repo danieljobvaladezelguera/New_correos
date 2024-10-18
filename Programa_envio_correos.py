@@ -6,6 +6,7 @@ from smtplib import SMTP #Libreria dentro de python para el envio de correos
 import webbrowser as web #Librería para poner una url en el programa
 from socket import gaierror #Librería con el fin de buscar errores
 from pathlib import Path #Usar para revisar archivos
+import Pmw
 from os import makedirs, path # Crear una carpeta para guardar información
 
 #https://myaccount.google.com/lesssecureapps?pli=1&rapt=AEjHL4PDAcXeJzQCiyuIDVjmt4tfaMySFl40ei6dVTFTvz67ZJJl5s9nZV18NkNjNRd9jJ06jljezI9sUpZK8na8IUGjK6omA2_tjCXlK0doz2pBF2O7S3s
@@ -27,84 +28,6 @@ pasword = "Contraseña"
 #link para que visiten la página web para la contraseña de google
 def link():    
     web.open(n_link)
-#Función para que se pueda agregar otro tipo de correo que no sea el de google
-def cambio_server():
-    arch = "C:/UsPwd/uspwd.txt"
-    def seleccion():
-        select = combo.get()
-        if(select != ''):
-            pos = valores.index(select)
-            web_smtp = 'smtp.'+servidor[pos]
-            w_user.destroy()
-            uspwd = open(arch,"r")
-            info = uspwd.read()
-            coma = info.count(",")
-            if coma == 2:
-                uspwd = open(arch, "r")
-                info = uspwd.read()
-                array = info.split(",")
-                print(array[2])
-                array.pop(-1)
-                array.append(web_smtp)
-                uspwd = open(arch, "w")
-                uspwd.write(array[0])
-                uspwd.write(",")
-                uspwd.write(array[1])
-                uspwd.write(",")
-                uspwd.write(array[2])
-                uspwd.write(",")
-                uspwd.write('587')
-                uspwd.write(",")
-                uspwd.close()
-                messagebox.showinfo('Aviso', 'Servidor Guardado')
-                pass
-            elif coma == 1:
-                uspwd = open(arch, "a")
-                uspwd.write(",")
-                uspwd.write(web_smtp)
-                uspwd.write(",")
-                uspwd.write(port)
-                uspwd.write(",")
-                uspwd.close
-                pass
-            uspwd.close()
-            messagebox.showinfo('Aviso','Servidor: ' + web_smtp +' seleccionado')
-        else:
-            messagebox.showinfo('Aviso', 'No ha seleccionado su correo') 
-        
-    def avanzado():
-        url_server.pack()
-        entry_url.pack()
-        port.pack()
-        entry_port.pack()
-        combo.configure(state='disable')
-        pass
-    
-    
-    tam= '300x250'
-    valores=["1&1 IONOS",'AOL','GMAIL','ICLOUD MAIL','OFFICE 365',
-            'ORANGE','OUTLOOK','YAHOO','ZOHO MAIL']
-    servidor=['1and1.com','aol.com','gmail.com','gmx.com','mail.me.com',
-            'office365.com','orange.net','live.com','mail.yahoo.com','zoho.com']
-    w_user = Tk()
-    w_user.title('Cambio de servidor')
-    w_user.geometry(tam)
-    select_correo = Button(w_user, text="Seleccionar", command=seleccion)
-    combo = Combobox(w_user,state='readonly',values= valores)
-
-    correo_seleccion = Label(w_user, text = '\nFavor de seleccionar \n'+
-                             'su cuenta de correo\n')
-    url_server =  Label(w_user, text = "URL del servidor SMTP: ") 
-    port =  Label(w_user, text = "Puerto de entrada: ")
-    entry_url =  Entry(w_user, text = "", width = 45)
-    entry_port =  Entry(w_user, text = "", width = 15) 
-
-    cambio_ser =  Button(w_user, text='Opciones avanzadas', command=avanzado)
-
-    correo_seleccion.pack()
-    combo.pack()
-    select_correo.pack()
-    cambio_ser.pack()
 #Función para que cambie de usuario
 def cambio_usuario():
     arch = "C:/UsPwd/uspwd.txt"
@@ -121,78 +44,39 @@ def cambio_usuario():
         res = messagebox.askyesnocancel(title="Aviso", message="Se sobre escribiran los datos\n"
                                     +"Desea seguir")
         if res:
-            ag1 = entry_mail.get()
-            ag2 = entry_password.get()
-            pos = valores.index(combo.get())
-            web_smtp = 'smtp.'+servidor[pos]
-            if (ag1 != '' and ag2 != '' and pos != ""):
-                uspwd = open(arch,"w")
-                uspwd.write(ag1)
-                uspwd.write(",")
-                uspwd.write(ag2)
-                uspwd.write(",")
-                uspwd.write(web_smtp)
-                uspwd.write(",")
-                messagebox.showinfo("Aviso", "Datos cargados correctamente")
-                uspwd.close()
-            else:
-                messagebox.showinfo("Aviso", "Faltan datos por llenar")
-
+            try:
+                ag1 = entry_mail.get()
+                ag2 = entry_password.get()
+                pos = valores.index(combo.get())
+                web_smtp = 'smtp.'+servidor[pos]
+                if (ag1 != '' and ag2 != '' and pos != ""):
+                    uspwd = open(arch,"w")
+                    uspwd.write(ag1)
+                    uspwd.write(",")
+                    uspwd.write(ag2)
+                    uspwd.write(",")
+                    uspwd.write(web_smtp)
+                    uspwd.write(",")
+                    messagebox.showinfo("Aviso", "Datos cargados correctamente")
+                    uspwd.close()
+                else:
+                    messagebox.showinfo("Aviso", "Faltan datos por llenar")
+            except Exception as e:
+                messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+                pass
+    
     uspwd = open(arch, "r")
     uspwdread = uspwd.readlines()
     cantidad = len(uspwdread)
-    if(cantidad != 0):
-        cambio_user = messagebox.askyesno("Aviso", "Ya hay datos dentro del usuario. \n"+                                              
-                                "¿Desea cambiar de usuario?")
-        if cambio_user:
-            valores=["1&1 IONOS",'AOL','GMAIL','ICLOUD MAIL','OFFICE 365',
-            'ORANGE','OUTLOOK','YAHOO','ZOHO MAIL']
-            servidor=['1and1.com','aol.com','gmail.com','gmx.com','mail.me.com',
-            'office365.com','orange.net','live.com','mail.yahoo.com','zoho.com']
-            correo = Tk()
-            correo.geometry("450x250")
-            correo.title("Cambio de Usuario")
-
-            entry_mail =  Entry(correo, width = 45)
-            entry_mail.insert('insert',mail)
-            entry_mail.bind("<Button-1>", on_entry_mail)
-
-            entry_password =  Entry(correo, width = 45)
-            entry_password.insert('insert',pasword)
-            entry_password.bind("<Button-1>", on_entry_pass)
-            
-            combo = Combobox(correo,state='readonly',values= valores)
-
-            btn_envio =  Button(correo,
-                            text ="Guardar",
-                            width = 45, 
-                            height = 1,
-                            bg = "gray", 
-                            command = escribir)
-            btn_insert = Button(correo, 
-                            text = "Link para saber tu contraseña",
-                            width = 45,
-                            height= 1,
-                            bg= "gray",
-                            command = link)    
-                
-            entry_mail.pack(padx=10, pady=5)
-            entry_password.pack(padx=10, pady=5)
-            combo.pack(padx=10, pady=5)
-            btn_envio.pack(padx=10, pady=5)
-            btn_insert.pack(padx=10, pady=5)            
-            correo.mainloop()                
-        else:
-            uspwd.close()
-    else:
+    if(cantidad == 0):
         valores=["1&1 IONOS",'AOL','GMAIL','ICLOUD MAIL','OFFICE 365',
             'ORANGE','OUTLOOK','YAHOO','ZOHO MAIL']
         servidor=['1and1.com','aol.com','gmail.com','gmx.com','mail.me.com',
             'office365.com','orange.net','live.com','mail.yahoo.com','zoho.com']
-            
         correo = Tk()
         correo.geometry("450x250")
-        correo.title("Cambio de usuario")
+        correo.title("Cambio de Usuario")
+        Pmw.initialise(correo)
 
         entry_mail =  Entry(correo, width = 45)
         entry_mail.insert('insert',mail)
@@ -201,7 +85,11 @@ def cambio_usuario():
         entry_password =  Entry(correo, width = 45)
         entry_password.insert('insert',pasword)
         entry_password.bind("<Button-1>", on_entry_pass)
+
+        tooltip = Pmw.Balloon(correo)
+        texto = Label(correo, text = "Selecciona sevidor de correo")
         combo = Combobox(correo,state='readonly',values= valores)
+
         btn_envio =  Button(correo,
                             text ="Guardar",
                             width = 45, 
@@ -214,21 +102,22 @@ def cambio_usuario():
                             height= 1,
                             bg= "gray",
                             command = link)    
-                
+            
+        tooltip.bind(texto, "Si tiene duda al elegir, es en dónde abre su correo"+
+                        "\nNo hablo del navegador, hablo de la página web donde la abre")
         entry_mail.pack(padx=10, pady=5)
         entry_password.pack(padx=10, pady=5)
+        texto.pack(padx=10, pady=5)
         combo.pack(padx=10, pady=5)
         btn_envio.pack(padx=10, pady=5)
-        btn_insert.pack(padx=10, pady=5)            
+        btn_insert.pack(padx=10, pady=5)             
         correo.mainloop()
-
+    else:
+        pass
     uspwd.close()
 #Función para escribir los correos
 def enviar():
-    l=0
-    h=0
-    cont=0
-    tot_cor = 0
+    l=h = cont = tot_cor =0
     a = "@"
     lis_er_str = ""
     lis_er = []
@@ -375,8 +264,22 @@ if not uspwd_file.exists():
         file.write("")
 
 #Leer usuario y contraseña del archivo de texto
-
 cambio_usuario()
+
+uspwd = open(arch, "r")
+uspwdread = uspwd.readlines()
+cantidad = len(uspwdread)
+if (cantidad == 1):
+    dato = open(arch, "r")
+    info = dato.read()
+    array = info.split(",")
+    correo = array[0]
+    print(correo)
+else:
+    correo = 'Sin usuario'
+    print(correo)
+
+usuario = 'Usuario: ' + correo
 
 #Inicio del programa de envío de correos
 ven_correos = Tk()
@@ -386,18 +289,19 @@ ven_correos.config(background='gray15', cursor="")
 menu = Menu(ven_correos)
 new_item = Menu(menu, border='50', tearoff=False)
 ven_correos.config(menu=menu)
-frame_button = Frame(ven_correos) 
-#División del programa en 2 partes, en la entrada de texto y los botones
 
 #Items dentro del menú desplegable
 menu.add_cascade(label='Configuración', menu=new_item)
-#new_item.add_command(label='Cambio de servidor', command=cambio_server)
 new_item.add_command(label='Cambio de usuario', command=cambio_usuario)
 new_item.add_separator()
 new_item.add_command(label='Envío de correos', command=enviar)
 new_item.add_separator()
 new_item.add_command(label='Salir', command=salir)
 
+#Mostrar el usuario a turno
+usuario = Label(ven_correos, text = usuario, width=60, background='gray15',
+                font=font.Font(family="Arial",size=15),
+                foreground="White")
 #Lugar donde entrará la información
 Entry_asun =  Entry(ven_correos, text= "", width=60, background='gray15',
                 font=font.Font(family="Arial",size=17),
@@ -417,9 +321,8 @@ Entry_body_mail= scrolledtext.ScrolledText(ven_correos,width=60, height=30, back
 Entry_body_mail.insert('insert', body)
 Entry_body_mail.bind('<Button-1>', on_entry_body)
 
-barra = Progressbar(ven_correos, orient='horizontal', length='100')
-
 #Lugar donde se acomodarán los datos
+usuario.pack(padx=10, pady=10)
 Entry_asun.pack(padx=10, pady=10)
 Entry_salu.pack(padx=10, pady=10)
 Entry_body_mail.pack(padx=10, pady=10)
