@@ -6,14 +6,15 @@ from smtplib import SMTP #Libreria dentro de python para el envio de correos
 import webbrowser as web #Librería para poner una url en el programa
 from socket import gaierror #Librería con el fin de buscar errores
 from pathlib import Path #Usar para revisar archivos
-import Pmw
+import Pmw 
+from datetime import date
 from os import makedirs, path # Crear una carpeta para guardar información
 
 #https://myaccount.google.com/lesssecureapps?pli=1&rapt=AEjHL4PDAcXeJzQCiyuIDVjmt4tfaMySFl40ei6dVTFTvz67ZJJl5s9nZV18NkNjNRd9jJ06jljezI9sUpZK8na8IUGjK6omA2_tjCXlK0doz2pBF2O7S3s
 #https://myaccount.google.com/apppasswords?utm_source=google-account&utm_medium=myaccountsecurity&utm_campaign=tsv-settings&rapt=AEjHL4Mk5lLF8MX793jG6SdOJKKflJoFb5rDbg3TutbXD3LAXWwxUTF5Q5gKJZZqw4geHCcZTzVym_Gr33b-nhnP67f1jVtWir6glV4dKvbg3EqS7IhLniM
 
 #Variables que no cambiarán en todo el correo
-n_link = "https://myaccount.google.com/apppasswords?utm_source=google-account&utm_medium=myaccountsecurity&utm_campaign=tsv-settings&rapt=AEjHL4Mk5lLF8MX793jG6SdOJKKflJoFb5rDbg3TutbXD3LAXWwxUTF5Q5gKJZZqw4geHCcZTzVym_Gr33b-nhnP67f1jVtWir6glV4dKvbg3EqS7IhLniM"    
+n_link = "https://myaccount.google.com/apppasswords?utm_source=google-account&utm_medium=myaccountsecurity&utm_campaign=tsv-settings&rapt=AEjHL4Mk5lLF8MX793jG6SdOJKKflJoFb5rDbg3TutbXD3LAXWwxUTF5Q5gKJZZqw4geHCcZTzVym_Gr33b-nhnP67f1jVtWir6glV4dKvbg3EqS7IhLniM"
 pasw = "C:/UsPwd"
 arch = "C:/UsPwd/uspwd.txt"
 asun = "Asunto"
@@ -28,7 +29,7 @@ pasword = "Contraseña"
 def link():
     web.open(n_link)
 #Función para que cambie de usuario
-def cambio_usuario_inicio():
+def inicio_sesion():
     arch = "C:/UsPwd/uspwd.txt"
 
     def on_entry_mail(event):
@@ -40,34 +41,64 @@ def cambio_usuario_inicio():
             entry_password.delete(0, "end")
 
     def escribir():
-            try:
-                ag1 = entry_mail.get()
-                ag2 = entry_password.get()
-                pos = valores.index(combo.get())
-                web_smtp = 'smtp.'+servidor[pos]
-                if (ag1 != '' and ag2 != '' and pos != ""):
-                    uspwd = open(arch,"w")
-                    uspwd.write(ag1)#correo
-                    uspwd.write(",")
-                    uspwd.write(ag2)#contraseña
-                    uspwd.write(",")
-                    uspwd.write(web_smtp)#servidor
-                    uspwd.write(",")
-                    uspwd.write(500)#valor de cantidad de correos
-                    uspwd.write(",")
-                    messagebox.showinfo("Aviso", "Datos cargados correctamente")
-                    uspwd.close()
-                    correo.destroy()
-                else:
+        try:
+            ag1 = entry_mail.get()
+            ag2 = entry_password.get()
+            pos = valores.index(combo.get())
+            web_smtp = 'smtp.'+servidor[pos]
+            if (ag1 != '' and ag2 != '' and pos != ""):
+                uspwd = open(arch,"w")
+                uspwd.write(ag1)#correo
+                uspwd.write(",")
+                uspwd.write(ag2)#contraseña
+                uspwd.write(",")
+                uspwd.write(web_smtp)#servidor
+                uspwd.write(",")
+                uspwd.write(str(500))#valor de cantidad de correos
+                uspwd.write(",")
+                uspwd.write(str(date.today()))#Fecha del último día de sesión
+                uspwd.write(",")
+                messagebox.showinfo("Aviso", "Datos cargados correctamente")
+                uspwd.close()
+                correo.destroy()
+            else:
                     messagebox.showinfo("Aviso", "Faltan datos por llenar")
-            except Exception as e:
-                messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
-                pass
+        except Exception as e:
+            messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+            pass
+ 
+    dato = open(arch, "r")
+    info = dato.read()
+    print(dato.read())
 
-    uspwd = open(arch, "r")
-    uspwdread = uspwd.readlines()
-    cantidad = len(uspwdread)
-    if(cantidad == 0):
+    dato = open(arch, "r")
+    info = dato.read()
+    array = info.split(",")
+    nombre = array[0]
+    cant_correo = array[3]#Cantidad de correos x día
+    fecha = array[4]#fecha de la última sesión
+
+    fecha_hoy = date.today()
+        
+    if fecha != fecha_hoy:
+        with open(arch, "r") as archivo:
+            lineas = archivo.readlines()        
+        for i in range(len(lineas)):
+            # Separar cada línea por comas
+            columnas = lineas[i].strip().split(",")
+            if columnas[0] == nombre:  # Buscar el usuario
+                columnas[3] = str(500) # Actualiza la cantidad de correos del día
+                columnas[4] = str(date.today())  # Actualizar la fecha
+
+                lineas[i] = ",".join(columnas) + "\n"  # Reensamblar la línea
+        
+        with open(arch, "w") as archivo:
+            archivo.writelines(lineas[i])
+            archivo.close()
+    else:
+            pass
+    
+    if cant_correo != 0:
         valores=["1&1 IONOS",'AOL','GMAIL','ICLOUD MAIL','OFFICE 365',
             'ORANGE','OUTLOOK','YAHOO','ZOHO MAIL']
         servidor=['1and1.com','aol.com','gmail.com','gmx.com','mail.me.com',
@@ -109,11 +140,11 @@ def cambio_usuario_inicio():
         texto.pack(padx=10, pady=5)
         combo.pack(padx=10, pady=5)
         btn_envio.pack(padx=10, pady=5)
-        btn_insert.pack(padx=10, pady=5)             
+        #btn_insert.pack(padx=10, pady=5)             
         correo.mainloop()
     else:
-        uspwd.close()
-    uspwd.close()
+        pass
+    #uspwd.close()
 #Ambas funciones son las mismas, pero para mejorarla en un futuro se necesitan unos detalles
 def cambio_usuario_button():
     arch = "C:/UsPwd/uspwd.txt"
@@ -126,8 +157,9 @@ def cambio_usuario_button():
         if entry_password.get() == pasword:
             entry_password.delete(0, "end")
 
-    def escribir():
+    def escribir():#Revisar la variable que falta x definir
             try:
+                dia = str(date.today())
                 ag1 = entry_mail.get()
                 ag2 = entry_password.get()
                 pos = valores.index(combo.get())
@@ -140,7 +172,9 @@ def cambio_usuario_button():
                     uspwd.write(",")
                     uspwd.write(web_smtp)#servidor
                     uspwd.write(",")
-                    uspwd.write(500)#valor de cantidad de correos
+                    uspwd.write(str(500))#valor de cantidad de correos
+                    uspwd.write(",")
+                    uspwd.write(dia)#Fecha del último día de sesión
                     uspwd.write(",")
                     messagebox.showinfo("Aviso", "Datos cargados correctamente")
                     uspwd.close()
@@ -151,13 +185,11 @@ def cambio_usuario_button():
                 messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
                 pass
 
-    uspwd = open(arch, "r")
-    uspwdread = uspwd.readlines()
-    cantidad = len(uspwdread)
     valores=["1&1 IONOS",'AOL','GMAIL','ICLOUD MAIL','OFFICE 365',
             'ORANGE','OUTLOOK','YAHOO','ZOHO MAIL']
     servidor=['1and1.com','aol.com','gmail.com','gmx.com','mail.me.com',
             'office365.com','orange.net','live.com','mail.yahoo.com','zoho.com']
+    
     correo = Tk()
     correo.geometry("450x250")
     correo.title("Cambio de Usuario")
@@ -303,12 +335,11 @@ def enviar():
             #Aquí se toman los datos del archivo txt para la cantidad de correos, usuario y contraseña del correo
             if(new_asunto != None or new_asunto != '' or new_saludo != None or new_saludo != ''):
                 message = 'Subject: {}\n\n{}'.format(new_asunto, new_saludo + ": ")
-                dato.close()
                 try:#Mientras funcione, se enviarán los correos
                     server = SMTP(server_smtp,587) #toma los puertos para poder funcionar, por defecto se establecen cómo 587 y smtp.gmail.com
                     server.starttls()#manda un helo para conectar al servidor
                     server.login(correo, contra)#toma el usuario y contraseña antes guardados
-                    pregunta = messagebox.askyesnocancel("Aviso","Inicio de envio de correos "
+                    pregunta = messagebox.askyesnocancel("Aviso","Inicio de envio de correos "#Pregunta para el inicio de correos
                                 + "\n Total de correos a enviar: " + str(len(id))
                                 + "\n\n De: " + correo
                                 + "\n\n Para: " + lis_co[0]
@@ -318,9 +349,9 @@ def enviar():
                                 + "\n\n" + pdf[0]
                                 + "\n\n ¿Se encuentra el correo en orden?")                                
                     if pregunta:
-                        messagebox.showinfo("Aviso", "Inicio del envío de correos")
+                        messagebox.showinfo("Aviso", "Inicio del envío de correos")#Ahora si inicia el envio
                         while(l != num_cor and tot_cor != cant_correo_2):
-                            server.sendmail(correo, 
+                            server.sendmail(correo, #El cuerpo del correo que se enviará
                                             lis_co[l], 
                                             message + nombre[l]
                                             +"\n"+ new_cuerpo
@@ -329,30 +360,24 @@ def enviar():
                             l = l + 1
                             tot_cor = tot_cor + 1
                         else:
-                            messagebox.showinfo("Aviso", "Envio de correos finalizado")
+                            messagebox.showinfo("Aviso", "Envio de correos finalizado")#Ya terminó el envío
                             new_cantidad = cant_correo_2 - tot_cor
-                            cant_corr(correo, new_cantidad)
-                            dato.close
-                    elif "no" or "cancel":
+                            cant_corr(correo, new_cantidad)#Resta la cantidad de correos enviados ahorita con la cantidad total que se tiene
+                    elif "no" or "cancel":#Desde antes se cancela el envio
                         messagebox.Message("Envío de correos cancelado")
-                        new_cantidad = cant_correo_2 - tot_cor
-                        cant_corr(correo, new_cantidad)
-                        dato.close()
-                except gaierror:
+                except gaierror:#En el caso de un error de conexión, se cancela el envío de correos
                     messagebox.showerror("Error de conexión", 
                                 "No hay conexión a Internet." + 
                                 "\nPor favor, verifica tu conexión e inténtalo de nuevo.")
                     new_cantidad = cant_correo_2 - tot_cor
                     cant_corr(correo, new_cantidad)
-                    dato.close()
-                except Exception as e:
+                except Exception as e:#Muestra el error ocurrido
                     messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
                     new_cantidad = cant_correo_2 - tot_cor
                     cant_corr(correo, new_cantidad)
-                    dato.close()
-            else:
+            else:#Los datos dentro del programa principal no están
                 messagebox.showerror("ALTO", "Datos de asunto y/o saludo deben de llenarse")
-    else:
+    else:#El excel no se cargó bien o se canceló la toma del archivo
         messagebox.showinfo("Aviso", "Favor de seleccionar un archivo Excel")
 #Función para borrar el texto explicativo
 def on_entry_asun(event):
@@ -375,6 +400,7 @@ def cantidad_correos():
     info = dato.read()
     array = info.split(",")
     cantidad = array[3]
+    
     info = Tk()
     info.geometry("350x75")
     info.title("Cantidad de correoss")
@@ -404,10 +430,20 @@ makedirs(Ruta, exist_ok=True)
 uspwd_file = Path(arch)
 if not uspwd_file.exists():
     with open(arch, "w") as file:
-        file.write("")
+        file.write("Sin usuario")#correo
+        file.write(",")
+        file.write("Sin contraseña")#contraseña
+        file.write(",")
+        file.write(str(587))#servidor
+        file.write(",")
+        file.write(str(500))#valor de cantidad de correos
+        file.write(",")
+        file.write(str(date.today()))#Fecha del último día de sesión
+        file.write(",")
+        file.close()
 
 #Leer usuario y contraseña del archivo de texto
-cambio_usuario_inicio()
+inicio_sesion()
 
 uspwd = open(arch, "r")
 uspwdread = uspwd.readlines()
